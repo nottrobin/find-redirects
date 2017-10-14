@@ -1,0 +1,117 @@
+#! /usr/bin/env python3
+
+# Core packages
+import argparse
+import pkg_resources
+import sys
+
+# Local packages
+from canonicalwebteam.find_redirects.file import (
+    find_files,
+    find_redirects,
+    find_urls_in_files,
+    replace_in_files
+)
+from canonicalwebteam.find_redirects.cli import Logger
+
+
+parser = argparse.ArgumentParser(
+    description=(
+        'Find URLs that lead to 301 or 302 redirects '
+        'in the specified set of files. '
+        'Optionally, update the redirected URLs in-place to their '
+        'targets URLs.'
+    )
+)
+parser.add_argument(
+    '-r', '--replace',
+    help='Directly replace redirected URLs in files',
+    action="store_true"
+)
+parser.add_argument(
+    '-s', '--strict',
+    help='Return an error if any redirects or failing URLs are found',
+    action="store_true"
+)
+parser.add_argument(
+    '-p', '--permanent-only',
+    help='Only find URLs that lead to 301 redirects (ignore 302s)',
+    action="store_true"
+)
+parser.add_argument(
+    '-q', '--quiet',
+    help="Don't display any output",
+    action="store_true"
+)
+parser.add_argument(
+    '-c', '--check-https',
+    help=(
+        "For any http:// URLs, check for an https:// equivalent, "
+        "and if it exists, treat it as if it were a 301 redirect"
+    ),
+    action="store_true"
+)
+parser.add_argument(
+    '-v', '--version',
+    action='store_true',
+    help="Show the currently installed version of find-redirects"
+)
+parser.add_argument(
+    'files',
+    help='Globs of files or directories to check',
+    nargs='*'
+)
+cli_arguments = vars(parser.parse_args())
+
+# Print versions
+if cli_arguments['version']:
+    print(
+        pkg_resources.get_distribution(
+            "canonicalwebteam.find-redirects"
+        ).version
+    )
+    sys.exit()
+
+if not cli_arguments['files']:
+    print("Please provide a list of files to check\n")
+    parser.print_help()
+    sys.exit(1)
+
+
+# Set up logger
+logger = Logger(cli_arguments['quiet'])
+
+filepaths = find_files(cli_arguments['files'])
+urls = find_urls_in_files(filepaths)
+
+logger.log("Found {} URLs in {} files".format(
+    str(len(urls)), str(len(filepaths)))
+)
+
+redirects, failed_urls = find_redirects(
+    urls,
+    logger,
+    check_https=cli_arguments['check_https'],
+    permanent_only=cli_arguments['permanent_only']
+)
+
+if not redirects:
+    logger.log("No redirected URLs found")
+
+if cli_arguments['replace']:
+    if redirects:
+        replace_in_files(filepaths, redirects, logger)
+        logger.log(
+            "Replaced {} URLs in {} files".format(
+                str(len(redirects)), str(len(filepaths))
+            )
+        )
+
+if failed_urls:
+    logger.log("Failed URLs:")
+
+    for url, error in failed_urls.items():
+        logger.log("- {} - {}".format(url, error))
+
+if cli_arguments['strict'] and (redirects or failed_urls):
+    sys.exit(1)

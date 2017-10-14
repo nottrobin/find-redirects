@@ -1,0 +1,22 @@
+name: find-redirects
+version: '0.1.0'
+summary: Find redirected URLs in a set of files
+description: |
+  Find URLs that lead to 301 or 302 redirects in the specified set of
+  files. Optionally, update the redirected URLs in-place to their targets
+  URLs.
+
+grade: stable
+confinement: strict
+
+parts:
+  repo:
+    plugin: python
+    source: .
+
+apps:
+  upload-assets:
+    command: find-redirects
+    plugs:
+      - home
+      - network-bind
