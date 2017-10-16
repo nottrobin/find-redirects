@@ -18,7 +18,7 @@ Otherwise, you can install with Pip:
 
 .. code:: bash
 
-    sudo pip3 install find-redirects
+    sudo pip3 install canonicalwebteam.find-redirects
 
 Usage
 -----
