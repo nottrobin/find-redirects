@@ -15,7 +15,7 @@ parts:
     source: .
 
 apps:
-  upload-assets:
+  find-redirects:
     command: find-redirects
     plugs:
       - home

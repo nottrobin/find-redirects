@@ -8,7 +8,7 @@ from setuptools import setup
 # This was only introduced in Python 3.5:
 # https://docs.python.org/3.6/whatsnew/3.5.html#glob
 assert sys.version_info >= (3, 5), (
-    "upload-assets requires Python 3.5 or newer"
+    "find-redirects requires Python 3.5 or newer"
 )
 
 setup(
