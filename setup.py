@@ -28,7 +28,8 @@ setup(
     ),
     long_description=open('README.rst').read(),
     install_requires=[
-        'requests[security]>=2.13.0'
+        'requests[security]>=2.13.0',
+        'ipdb==0.10.2'
     ],
     scripts=['find-redirects']
 )

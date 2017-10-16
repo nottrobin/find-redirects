@@ -2,6 +2,7 @@
 import glob
 import os
 import re
+import sys
 
 # Local packages
 from .url import get_redirect_url
@@ -70,7 +71,13 @@ def find_urls_in_files(filepaths):
 
     for filepath in filepaths:
         with open(filepath) as file_handle:
-            urls += url_match.findall(file_handle.read())
+            try:
+                urls += url_match.findall(file_handle.read())
+            except UnicodeDecodeError:
+                print(
+                    "Warning: Failed to parse {}".format(filepath),
+                    file=sys.stderr
+                )
 
     return sorted(list(set(urls)))
 

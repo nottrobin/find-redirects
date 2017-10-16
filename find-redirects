@@ -2,6 +2,7 @@
 
 # Core packages
 import argparse
+import locale
 import pkg_resources
 import sys
 
@@ -15,6 +16,11 @@ from canonicalwebteam.find_redirects.file import (
 from canonicalwebteam.find_redirects.cli import Logger
 
 
+# Set UTF-8 locale
+if 'UTF-8' not in locale.getlocale():
+    locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+
+# Read arguments
 parser = argparse.ArgumentParser(
     description=(
         'Find URLs that lead to 301 or 302 redirects '
